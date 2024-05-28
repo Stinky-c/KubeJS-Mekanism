@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import dev.latvian.kubejs.mekanism.util.ChemicalWrapper;
+import dev.latvian.mods.kubejs.fluid.FluidStackJS;
 import dev.latvian.mods.kubejs.item.InputItem;
 import dev.latvian.mods.kubejs.item.OutputItem;
 import dev.latvian.mods.kubejs.recipe.*;
@@ -13,6 +14,7 @@ import dev.latvian.mods.kubejs.typings.desc.TypeDescJS;
 import dev.latvian.mods.kubejs.util.JsonIO;
 import dev.latvian.mods.kubejs.util.MapJS;
 import dev.latvian.mods.kubejs.util.UtilsJS;
+import mekanism.api.IMekanismAccess;
 import mekanism.api.JsonConstants;
 import mekanism.api.SerializerHelper;
 import mekanism.api.chemical.ChemicalStack;
@@ -24,9 +26,12 @@ import mekanism.api.chemical.pigment.PigmentStack;
 import mekanism.api.chemical.slurry.SlurryStack;
 import mekanism.api.math.FloatingLong;
 import mekanism.api.recipes.ingredients.ChemicalStackIngredient;
+import mekanism.api.recipes.ingredients.FluidStackIngredient;
 import mekanism.api.recipes.ingredients.ItemStackIngredient;
+import mekanism.api.recipes.ingredients.creator.IFluidStackIngredientCreator;
+import mekanism.api.recipes.ingredients.creator.IItemStackIngredientCreator;
 import mekanism.api.recipes.ingredients.creator.IngredientCreatorAccess;
-import mekanism.common.recipe.ingredient.creator.ItemStackIngredientCreator;
+import mekanism.common.recipe.ingredient.creator.ItemStackIngredientCreator; // The only defined reach into common
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +39,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 public interface MekComponents {
+	IItemStackIngredientCreator itemStackIngredientCreator = IMekanismAccess.INSTANCE.itemStackIngredientCreator();
+	IFluidStackIngredientCreator fluidStackIngredientCreator = IMekanismAccess.INSTANCE.fluidStackIngredientCreator();
+
 	RecipeComponent<ItemStackIngredient> INPUT_ITEM = new RecipeComponent<>() {
 		@Override
 		public ComponentRole role() {
@@ -59,7 +67,7 @@ public interface MekComponents {
 			}
 
 			var in = InputItem.of(from);
-			return ItemStackIngredientCreator.INSTANCE.from(in.ingredient, in.count);
+			return itemStackIngredientCreator.from(in.ingredient, in.count);
 		}
 
 		@Override
@@ -115,6 +123,11 @@ public interface MekComponents {
 
 			return original;
 		}
+
+		@Override
+		public String toString() {
+			return "mekanism_input_item";
+		}
 	};
 
 	RecipeComponent<ChemicalType> CHEMICAL_TYPE = new EnumComponent<>(ChemicalType.class, ChemicalType::getSerializedName, (c, s) -> ChemicalType.fromString(s));
@@ -138,10 +151,10 @@ public interface MekComponents {
 		@Override
 		public TypeDescJS constructorDescription(DescriptionContext ctx) {
 			return TypeDescJS.any(
-					chemicalWithAmount(ChemicalWrapper.GAS, ctx),
-					chemicalWithAmount(ChemicalWrapper.INFUSE_TYPE, ctx),
-					chemicalWithAmount(ChemicalWrapper.PIGMENT, ctx),
-					chemicalWithAmount(ChemicalWrapper.SLURRY, ctx)
+				chemicalWithAmount(ChemicalWrapper.GAS, ctx),
+				chemicalWithAmount(ChemicalWrapper.INFUSE_TYPE, ctx),
+				chemicalWithAmount(ChemicalWrapper.PIGMENT, ctx),
+				chemicalWithAmount(ChemicalWrapper.SLURRY, ctx)
 			);
 		}
 
@@ -207,10 +220,10 @@ public interface MekComponents {
 		@Override
 		public TypeDescJS constructorDescription(DescriptionContext ctx) {
 			return TypeDescJS.any(
-					chemicalWithAmount(ChemicalWrapper.GAS, ctx),
-					chemicalWithAmount(ChemicalWrapper.INFUSE_TYPE, ctx),
-					chemicalWithAmount(ChemicalWrapper.PIGMENT, ctx),
-					chemicalWithAmount(ChemicalWrapper.SLURRY, ctx)
+				chemicalWithAmount(ChemicalWrapper.GAS, ctx),
+				chemicalWithAmount(ChemicalWrapper.INFUSE_TYPE, ctx),
+				chemicalWithAmount(ChemicalWrapper.PIGMENT, ctx),
+				chemicalWithAmount(ChemicalWrapper.SLURRY, ctx)
 			);
 		}
 
@@ -313,4 +326,50 @@ public interface MekComponents {
 			}
 		}
 	};
+
+	RecipeComponent<FluidStackIngredient> INPUT_FLUID = new RecipeComponent<>() {
+		// TODO: finish impl like input item
+		@Override
+		public ComponentRole role() {
+			return ComponentRole.INPUT;
+		}
+
+		@Override
+		public Class<?> componentClass() {
+			return FluidStackIngredient.class;
+		}
+
+		@Override
+		public JsonElement write(RecipeJS recipe, FluidStackIngredient value) {
+			return value.serialize();
+		}
+
+		@Override
+		public FluidStackIngredient read(RecipeJS recipe, Object from) {
+			if (from instanceof FluidStackIngredient in) {
+				return in;
+			} else if (from instanceof JsonElement json) {
+				return fluidStackIngredientCreator.deserialize(json);
+			}
+			var in = FluidStackJS.of(from);
+			return fluidStackIngredientCreator.from(in.getFluid(), (int) in.getAmount()); // TODO: is this safe?
+		}
+
+		@Override
+		public String toString() {
+			return "mekanism_input_fluid";
+		}
+	};
 }
+/*
+		public ItemStackIngredient read(RecipeJS recipe, Object from) {
+			if (from instanceof ItemStackIngredient in) {
+				return in;
+			} else if (from instanceof JsonElement json) {
+				return IngredientCreatorAccess.item().deserialize(json);
+			}
+
+			var in = InputItem.of(from);
+			return itemStackIngredientCreator.from(in.ingredient, in.count);
+		}
+ */

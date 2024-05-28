@@ -2,6 +2,8 @@ package dev.latvian.kubejs.mekanism.custom;
 
 import dev.latvian.kubejs.mekanism.MekanismKubeJSPlugin;
 import dev.latvian.mods.kubejs.registry.RegistryInfo;
+import dev.latvian.mods.kubejs.typings.Info;
+import dev.latvian.mods.kubejs.typings.Param;
 import mekanism.api.chemical.pigment.Pigment;
 import mekanism.api.chemical.pigment.PigmentBuilder;
 import net.minecraft.resources.ResourceLocation;
@@ -29,6 +31,10 @@ public class KubeJSPigmentBuilder extends KubeJSChemicalBuilder<Pigment, Pigment
 	 * @param texture Resource location of the texture.
 	 * @return This builder.
 	 */
+	@SuppressWarnings("unused")
+	@Info(value = """
+		Allows setting texture location use ResourceLocation
+		""", params = {@Param(name = "texture", value = "ResourceLocation of the texture")})
 	public KubeJSPigmentBuilder texture(ResourceLocation texture) {
 		this.texture = texture;
 		return this;

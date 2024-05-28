@@ -1,6 +1,8 @@
-package dev.latvian.kubejs.mekanism.recipe;
+package dev.latvian.kubejs.mekanism.recipe.schema;
 
 
+import dev.latvian.kubejs.mekanism.recipe.MekComponents;
+import dev.latvian.kubejs.mekanism.recipe.MekanismRecipeJS;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
 import mekanism.api.JsonConstants;

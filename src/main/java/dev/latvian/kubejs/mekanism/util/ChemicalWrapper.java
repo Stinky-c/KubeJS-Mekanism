@@ -35,62 +35,62 @@ import java.util.function.Function;
 
 // @formatter:off
 public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>, I extends ChemicalStackIngredient<C, S>>(
-		String key,
-		ChemicalType type,
-		ResourceKey<? extends Registry<C>> registry,
-		IChemicalStackIngredientCreator<C, S, I> creator,
-		long defaultAmount,
-		Function<ResourceLocation, C> chemicalFromId,
-		Class<C> chemicalType,
-		Class<S> stackType,
-		Class<I> ingredientType
+	String key,
+	ChemicalType type,
+	ResourceKey<? extends Registry<C>> registry,
+	IChemicalStackIngredientCreator<C, S, I> creator,
+	long defaultAmount,
+	Function<ResourceLocation, C> chemicalFromId,
+	Class<C> chemicalType,
+	Class<S> stackType,
+	Class<I> ingredientType
 ) {
 	public static final ChemicalWrapper<Gas, GasStack, ChemicalStackIngredient.GasStackIngredient> GAS = new ChemicalWrapper<>(
-			JsonConstants.GAS,
-			ChemicalType.GAS,
-			MekanismAPI.gasRegistryName(),
-			IngredientCreatorAccess.gas(),
-			1000L,
-			Gas::getFromRegistry,
-			Gas.class,
-			GasStack.class,
-			ChemicalStackIngredient.GasStackIngredient.class
+		JsonConstants.GAS,
+		ChemicalType.GAS,
+		MekanismAPI.GAS_REGISTRY_NAME,
+		IngredientCreatorAccess.gas(),
+		1000L,
+		Gas::getFromRegistry,
+		Gas.class,
+		GasStack.class,
+		ChemicalStackIngredient.GasStackIngredient.class
 	);
 
 	public static final ChemicalWrapper<InfuseType, InfusionStack, ChemicalStackIngredient.InfusionStackIngredient> INFUSE_TYPE = new ChemicalWrapper<>(
-			JsonConstants.INFUSE_TYPE,
-			ChemicalType.INFUSION,
-			MekanismAPI.infuseTypeRegistryName(),
-			IngredientCreatorAccess.infusion(),
-			10L,
-			InfuseType::getFromRegistry,
-			InfuseType.class,
-			InfusionStack.class,
-			ChemicalStackIngredient.InfusionStackIngredient.class
+		JsonConstants.INFUSE_TYPE,
+		ChemicalType.INFUSION,
+		MekanismAPI.INFUSE_TYPE_REGISTRY_NAME,
+		IngredientCreatorAccess.infusion(),
+		10L,
+		InfuseType::getFromRegistry,
+		InfuseType.class,
+		InfusionStack.class,
+		ChemicalStackIngredient.InfusionStackIngredient.class
 	);
 
 	public static final ChemicalWrapper<Pigment, PigmentStack, ChemicalStackIngredient.PigmentStackIngredient> PIGMENT = new ChemicalWrapper<>(
-			JsonConstants.PIGMENT,
-			ChemicalType.PIGMENT,
-			MekanismAPI.pigmentRegistryName(),
-			IngredientCreatorAccess.pigment(),
-			1000L,
-			Pigment::getFromRegistry,
-			Pigment.class,
-			PigmentStack.class,
-			ChemicalStackIngredient.PigmentStackIngredient.class
+		JsonConstants.PIGMENT,
+		ChemicalType.PIGMENT,
+		MekanismAPI.PIGMENT_REGISTRY_NAME,
+		IngredientCreatorAccess.pigment(),
+		1000L,
+		Pigment::getFromRegistry,
+		Pigment.class,
+		PigmentStack.class,
+		ChemicalStackIngredient.PigmentStackIngredient.class
 	);
 
 	public static final ChemicalWrapper<Slurry, SlurryStack, ChemicalStackIngredient.SlurryStackIngredient> SLURRY = new ChemicalWrapper<>(
-			JsonConstants.SLURRY,
-			ChemicalType.SLURRY,
-			MekanismAPI.slurryRegistryName(),
-			IngredientCreatorAccess.slurry(),
-			1000L,
-			Slurry::getFromRegistry,
-			Slurry.class,
-			SlurryStack.class,
-			ChemicalStackIngredient.SlurryStackIngredient.class
+		JsonConstants.SLURRY,
+		ChemicalType.SLURRY,
+		MekanismAPI.SLURRY_REGISTRY_NAME,
+		IngredientCreatorAccess.slurry(),
+		1000L,
+		Slurry::getFromRegistry,
+		Slurry.class,
+		SlurryStack.class,
+		ChemicalStackIngredient.SlurryStackIngredient.class
 	);
 // @formatter:on
 
@@ -129,7 +129,8 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 	}
 
 	public TypeDescJS describe(DescriptionContext ctx) {
-		return TypeDescJS.STRING.or(ctx.javaType(chemicalType));
+		return TypeDescJS.any(ctx.javaType(chemicalType));
+//		return TypeDescJS.STRING.or(ctx.javaType(chemicalType)); // TODO: find a better probejs fix
 	}
 
 	private TagKey<C> tag(String id) {
@@ -141,7 +142,7 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 	}
 
 	public record InputComponent<C extends Chemical<C>, S extends ChemicalStack<C>, I extends ChemicalStackIngredient<C, S>>(
-			ChemicalWrapper<C, S, I> wrapper) implements RecipeComponent<I> {
+		ChemicalWrapper<C, S, I> wrapper) implements RecipeComponent<I> {
 		@Override
 		public ComponentRole role() {
 			return ComponentRole.INPUT;
@@ -186,10 +187,16 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 
 			return null;
 		}
+
+	}
+
+	@Override
+	public String toString() {
+		return "mekanism_chemical_" + this.type;
 	}
 
 	public record OutputComponent<C extends Chemical<C>, S extends ChemicalStack<C>, I extends ChemicalStackIngredient<C, S>>(
-			ChemicalWrapper<C, S, I> wrapper) implements RecipeComponent<S> {
+		ChemicalWrapper<C, S, I> wrapper) implements RecipeComponent<S> {
 		@Override
 		public ComponentRole role() {
 			return ComponentRole.OUTPUT;

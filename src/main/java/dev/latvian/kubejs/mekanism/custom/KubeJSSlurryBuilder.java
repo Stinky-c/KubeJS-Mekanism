@@ -2,6 +2,8 @@ package dev.latvian.kubejs.mekanism.custom;
 
 import dev.latvian.kubejs.mekanism.MekanismKubeJSPlugin;
 import dev.latvian.mods.kubejs.registry.RegistryInfo;
+import dev.latvian.mods.kubejs.typings.Info;
+import dev.latvian.mods.kubejs.typings.Param;
 import dev.latvian.mods.kubejs.util.Tags;
 import mekanism.api.chemical.slurry.Slurry;
 import mekanism.api.chemical.slurry.SlurryBuilder;
@@ -17,6 +19,10 @@ public sealed abstract class KubeJSSlurryBuilder extends KubeJSChemicalBuilder<S
 	/**
 	 * Shortcut for {@link #oreTag(ResourceLocation)}.
 	 */
+	@SuppressWarnings("unused")
+	@Info(value = """
+		Sets the tag of the ore this slurry is made from.
+		""", params = {@Param(name = "ore", value = "The ore, as a resource location.")})
 	public KubeJSSlurryBuilder ore(ResourceLocation ore) {
 		return oreTag(ore);
 	}
@@ -27,6 +33,9 @@ public sealed abstract class KubeJSSlurryBuilder extends KubeJSChemicalBuilder<S
 	 * @param ore The ore tag, as a resource location.
 	 * @return This builder.
 	 */
+	@Info(value = """
+		Sets the tag of the ore this slurry is made from.
+		""", params = {@Param(name = "ore", value = "The ore tag, as a resource location.")})
 	public KubeJSSlurryBuilder oreTag(ResourceLocation ore) {
 		builder().ore(Tags.item(ore));
 		return self();
@@ -85,6 +94,7 @@ public sealed abstract class KubeJSSlurryBuilder extends KubeJSChemicalBuilder<S
 		 * @param texture Resource location of the texture.
 		 * @return This builder.
 		 */
+		@SuppressWarnings("unused")
 		public Basic texture(ResourceLocation texture) {
 			this.texture = texture;
 			return this;
