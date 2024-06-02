@@ -11,6 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
 
+
+@SuppressWarnings("unused")
 public sealed abstract class KubeJSSlurryBuilder extends KubeJSChemicalBuilder<Slurry, SlurryBuilder, KubeJSSlurryBuilder> {
 	public KubeJSSlurryBuilder(ResourceLocation id) {
 		super(id);
@@ -19,7 +21,6 @@ public sealed abstract class KubeJSSlurryBuilder extends KubeJSChemicalBuilder<S
 	/**
 	 * Shortcut for {@link #oreTag(ResourceLocation)}.
 	 */
-	@SuppressWarnings("unused")
 	@Info(value = """
 		Sets the tag of the ore this slurry is made from.
 		""", params = {@Param(name = "ore", value = "The ore, as a resource location.")})

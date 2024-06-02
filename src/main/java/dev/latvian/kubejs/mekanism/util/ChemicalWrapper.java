@@ -129,7 +129,7 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 	}
 
 	public TypeDescJS describe(DescriptionContext ctx) {
-		return TypeDescJS.any(ctx.javaType(chemicalType));
+		return TypeDescJS.any(ctx.javaType(chemicalType), ctx.javaType(stackType));
 //		return TypeDescJS.STRING.or(ctx.javaType(chemicalType)); // TODO: find a better probejs fix
 	}
 
@@ -167,6 +167,8 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 		public I read(RecipeJS recipe, Object from) {
 			if (wrapper.ingredientType.isInstance(from)) {
 				return (I) from;
+			} else if (wrapper.stackType.isInstance(from)) {
+				return wrapper.creator().from((S) from);
 			} else if (from instanceof CharSequence) {
 				return wrapper.ingredient(from.toString(), wrapper.defaultAmount);
 			} else if (from instanceof Map<?, ?> || from instanceof JsonObject) {
@@ -184,7 +186,6 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 					}
 				}
 			}
-
 			return null;
 		}
 
@@ -224,6 +225,9 @@ public record ChemicalWrapper<C extends Chemical<C>, S extends ChemicalStack<C>,
 		public S read(RecipeJS recipe, Object from) {
 			if (wrapper.ingredientType.isInstance(from)) {
 				return (S) from;
+			} else if (wrapper.stackType.isInstance(from)) {
+				ChemicalStack stack = (S) from;
+				return wrapper.stack(stack.getRaw().getRegistryName().toString(), stack.getAmount());
 			} else if (from instanceof JsonObject || from instanceof Map<?, ?>) {
 				var json = MapJS.json(from);
 				var amount = json.has(JsonConstants.AMOUNT) ? json.get(JsonConstants.AMOUNT).getAsLong() : 0L;

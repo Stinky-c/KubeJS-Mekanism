@@ -10,6 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
 
+
+@SuppressWarnings("unused")
 public class KubeJSPigmentBuilder extends KubeJSChemicalBuilder<Pigment, PigmentBuilder, KubeJSPigmentBuilder> {
 
 	private ResourceLocation texture = null;
@@ -31,7 +33,6 @@ public class KubeJSPigmentBuilder extends KubeJSChemicalBuilder<Pigment, Pigment
 	 * @param texture Resource location of the texture.
 	 * @return This builder.
 	 */
-	@SuppressWarnings("unused")
 	@Info(value = """
 		Allows setting texture location use ResourceLocation
 		""", params = {@Param(name = "texture", value = "ResourceLocation of the texture")})

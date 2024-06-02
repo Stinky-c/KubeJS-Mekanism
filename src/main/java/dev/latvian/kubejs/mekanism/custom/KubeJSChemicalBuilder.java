@@ -19,6 +19,7 @@ import java.util.function.Supplier;
  * @param <B> - The type of (Mekanism) builder this builder will use internally.
  * @param <S> - The "self" type of this builder.
  */
+@SuppressWarnings("unused")
 public abstract class KubeJSChemicalBuilder<C extends Chemical<C>,
 	B extends ChemicalBuilder<C, B>,
 	S extends KubeJSChemicalBuilder<C, B, S>> extends BuilderBase<C> {
@@ -57,7 +58,6 @@ public abstract class KubeJSChemicalBuilder<C extends Chemical<C>,
 	 * @param color - The color to tint the texture with, in ARGB format.
 	 * @return This builder.
 	 */
-	@SuppressWarnings("unused")
 	@Info(value = """
 		Sets the tint to be applied over the texture
 		""", params = {@Param(name = "color", value = "The color to tint the texture with, in ARGB format.")})
@@ -71,7 +71,6 @@ public abstract class KubeJSChemicalBuilder<C extends Chemical<C>,
 	 *
 	 * @return This builder.
 	 */
-	@SuppressWarnings("unused")
 	@Info("""
 		Hides the item from JEI, and the list of creative chemical tanks
 		""")
@@ -92,11 +91,14 @@ public abstract class KubeJSChemicalBuilder<C extends Chemical<C>,
 	 */
 	@Info(value = """
 		Sets the "color representation" of this chemical. In practice, this refers to things like the color of the durability bar on chemical tanks. If you do not set this, the color will be determined by the tint applied to the texture.
-		""", params = {@Param(name = "color", value = "The color to represent this chemical with, in ARGB format.")})
+		""", params = {
+		@Param(name = "color", value = "The color to represent this chemical with, in ARGB format.")
+	})
 	public S barColor(int color) {
 		barColor = color;
 		return self();
 	}
+
 
 	protected final B builder() {
 		return builder.get();

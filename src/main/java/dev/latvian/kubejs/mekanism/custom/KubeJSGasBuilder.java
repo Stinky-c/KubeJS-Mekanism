@@ -13,6 +13,8 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
 
+
+@SuppressWarnings("unused")
 public class KubeJSGasBuilder extends KubeJSChemicalBuilder<Gas, GasBuilder, KubeJSGasBuilder> {
 
 	private ResourceLocation texture = null;
@@ -34,7 +36,6 @@ public class KubeJSGasBuilder extends KubeJSChemicalBuilder<Gas, GasBuilder, Kub
 	 * @param texture Resource location of the texture.
 	 * @return This builder.
 	 */
-	@SuppressWarnings("unused")
 	@Info(value = """
 		Allows setting texture location use ResourceLocation
 		""", params = {@Param(name = "texture", value = "ResourceLocation of the texture")})
@@ -46,15 +47,15 @@ public class KubeJSGasBuilder extends KubeJSChemicalBuilder<Gas, GasBuilder, Kub
 	/**
 	 * Declares that this gas is radioactive.
 	 * Due to the nature of radioactive gases, this means this gas will not be accepted
-	 * by most chemical containers, see {@link GasAttributes.Radiation#needsValidation()}.
+	 * by most chemical containers including fission reactor ports, see {@link GasAttributes.Radiation#needsValidation()}.
 	 *
 	 * @param radioactivity The radioactivity of this gas (in Sv/h).
 	 * @return This builder.
 	 */
-	@SuppressWarnings("unused")
 	@Info(value = """
 		Declares that this gas is radioactive.
 		Due to the nature of radioactive gases, this means this gas will not be accepted by most chemical containers
+		Mutually exclusive with coolant.
 		""", params = {
 		@Param(name = "radioactivity", value = "The radioactivity of this gas (in Sv/h)")
 	})
@@ -62,25 +63,16 @@ public class KubeJSGasBuilder extends KubeJSChemicalBuilder<Gas, GasBuilder, Kub
 		return with(new GasAttributes.Radiation(radioactivity));
 	}
 
-	/**
-	 * Declares that this gas is a coolant that may be used inside a fission reactor.
-	 *
-	 * @param heated          Whether this is the heated form of the coolant.
-	 * @param counterpart     The cooled (or heated if this is the cooled form) counterpart of this gas.
-	 * @param thermalEnthalpy The thermal enthalpy of this gas, referring to the amount of thermal
-	 *                        energy it takes to heat up 1mB of it. (i.e. lower values = more coolant required)
-	 * @param conductivity    The thermal conductivity of this gas, this is the fraction of a reactor's heat
-	 *                        that may be used to convert this coolant's cool variant to its heated variant at any given time.
-	 *                        (should be between 0 and 1)
-	 * @return This builder.
-	 */
-	@SuppressWarnings("unused")
+
+
+
 	@Info(value = """
 		Declares that this gas is a coolant that may be used inside a fission reactor.
+		Mutually exclusive with radioactivity.
 		""", params = {
 		@Param(name = "heated", value = "Whether this is the heated form of the coolant."),
 		@Param(name = "counterpart", value = "The cooled (or heated if this is the cooled form) counterpart of this gas."),
-		@Param(name = "thermalEnthalpy", value = "The thermal enthalpy of this gas, referring to the amount of thermal energy it takes to heat up 1mB of it. (i.e. lower values = more coolant required)"),
+		@Param(name = "thermalEnthalpy", value = "The thermal enthalpy of this gas, referring to the amount of thermal energy it takes to heat up 1mB of it. (i.e. lower values = more coolant required) (Sodium defaults to 2)"),
 		@Param(name = "conductivity", value = "The thermal conductivity of this gas, this is the fraction of a reactor's heat that may be used to convert this coolant's cool variant to its heated variant at any given time. (should be between 0 and 1)"),
 	})
 	public KubeJSGasBuilder coolant(boolean heated, ResourceLocation counterpart, double thermalEnthalpy, double conductivity) {
@@ -89,6 +81,27 @@ public class KubeJSGasBuilder extends KubeJSChemicalBuilder<Gas, GasBuilder, Kub
 		} else {
 			return with(new GasAttributes.CooledCoolant(new CachingGasProvider(counterpart), thermalEnthalpy, conductivity));
 		}
+	}
+	@Info("""
+		Alias to coolant, but takes a KubeJSGasBuilder for counterpart.
+		""")
+	public KubeJSGasBuilder coolant(boolean heated, KubeJSGasBuilder counterpart, double thermalEnthalpy, double conductivity) {
+		return coolant(heated, counterpart.get().getRegistryName(), thermalEnthalpy, conductivity);
+
+	}
+
+	@Info("""
+		Alias to coolant, but is heated variant
+		""")
+	public KubeJSGasBuilder heatedCoolant(ResourceLocation counterpart, double thermalEnthalpy, double conductivity) {
+		return coolant(true, counterpart, thermalEnthalpy, conductivity);
+	}
+
+	@Info("""
+		Alias to coolant, but is cooled variant
+		""")
+	public KubeJSGasBuilder cooledCoolant(ResourceLocation counterpart, double thermalEnthalpy, double conductivity) {
+		return coolant(false, counterpart, thermalEnthalpy, conductivity);
 	}
 
 	/**
@@ -106,14 +119,7 @@ public class KubeJSGasBuilder extends KubeJSChemicalBuilder<Gas, GasBuilder, Kub
 	})
 	public KubeJSGasBuilder fuel(int burnTicks, double energy) {
 		var density = FloatingLong.createConst(energy);
-
-		if (burnTicks <= 0) {
-			throw new IllegalArgumentException("Fuel attributes must burn for at least one tick! Burn Ticks: " + burnTicks);
-		}
-		if (density.isZero()) {
-			throw new IllegalArgumentException("Fuel attributes must have an energy density greater than zero!");
-		}
-		return with(new GasAttributes.Fuel(() -> burnTicks, () -> density));
+		return with(new GasAttributes.Fuel(burnTicks, density));
 	}
 
 	@Override
